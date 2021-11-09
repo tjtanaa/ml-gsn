@@ -133,6 +133,7 @@ class ReplicaDataset(Dataset):
                 _depth = os.path.join(episode_path, str(i).zfill(3) + '_depth.tiff')
                 # We dont want to normalize depth values
                 _depth = self.resize_transform_depth(Image.open(_depth))
+                print("_depth.shape: ", _depth.shape)
                 depth.append(torch.from_numpy(np.array(_depth)).unsqueeze(0))
 
         rgb = torch.stack(rgb)
