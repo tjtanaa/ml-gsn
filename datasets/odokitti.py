@@ -12,14 +12,14 @@ import torchvision.transforms as transforms
 from .dataset_utils import listdir_nohidden, normalize_trajectory, random_rotation_augment
 
 
-class ReplicaDataset(Dataset):
+class OdokittiDataset(Dataset):
     def __init__(
         self,
         data_dir,
         split='train',
         seq_len=10,
         step=1,
-        img_res=64,
+        img_res=64 ,#(1226/2, 370/2),
         depth=True,
         center='first',
         normalize_rotation=True,
@@ -29,7 +29,7 @@ class ReplicaDataset(Dataset):
         **kwargs
     ):
 
-        self.episode_len = 100
+        self.episode_len = 200
         self.data_dir = data_dir
         self.split = split
         self.datapath = os.path.join(self.data_dir, self.split)
@@ -46,8 +46,8 @@ class ReplicaDataset(Dataset):
         # step*seq_len < total_seq_len
         step = min(step, self.episode_len / seq_len)
         self.step = step
-        self.resize_transform_rgb = transforms.Compose([transforms.Resize(self.img_res), transforms.ToTensor()])
-        self.resize_transform_depth = transforms.Compose([transforms.Resize(self.img_res)])
+        self.resize_transform_rgb = transforms.Compose([transforms.Resize((self.img_res, self.img_res)), transforms.ToTensor()])
+        self.resize_transform_depth = transforms.Compose([transforms.Resize((self.img_res, self.img_res))])
 
     def get_trajectory_Rt(self):
         Rt = []
@@ -126,14 +126,18 @@ class ReplicaDataset(Dataset):
             K.append(torch.Tensor(cameras[i]['K']))
 
             _rgb = os.path.join(episode_path, str(i).zfill(3) + '_rgb.png')
+            # print(Image.open(_rgb).size)
+            pix = np.array(Image.open(_rgb))
+            # print("pix.shape: ", pix.shape)
             _rgb = self.resize_transform_rgb(Image.open(_rgb))
+            # print("_rgb[:3, :, :].shape: ", _rgb[:3, :, :].shape)
             rgb.append(_rgb[:3, :, :])
 
             if self.depth:
                 _depth = os.path.join(episode_path, str(i).zfill(3) + '_depth.tiff')
                 # We dont want to normalize depth values
                 _depth = self.resize_transform_depth(Image.open(_depth))
-                # print("_depth.shape: ", _depth.shape)
+                # print("_depth.shape: ", _depth.size)
                 depth.append(torch.from_numpy(np.array(_depth)).unsqueeze(0))
 
         rgb = torch.stack(rgb)
@@ -166,15 +170,19 @@ class ReplicaDataset(Dataset):
         K[:, 1, 1] = K[:, 1, 1] * fy
 
         downsampling_ratio = self.img_res / 512
+        # print("downsampling: ", downsampling_ratio)
         K[:, 0, 0] = K[:, 0, 0] * downsampling_ratio
         K[:, 1, 1] = K[:, 1, 1] * downsampling_ratio
-        depth = depth * 1000  # recommended scaling from game engine units to real world units
-        
-        print("min: ", np.min(depth.cpu().detach().numpy()), " \t max: ", np.max(depth.cpu().detach().numpy()))
+        # depth = depth * 1000  # recommended scaling from game engine units to real world units
 
         if self.depth:
             sample = {'rgb': rgb, 'depth': depth, 'K': K, 'Rt': Rt, 'scene_idx': idx}
         else:
             sample = {'rgb': rgb, 'K': K, 'Rt': Rt, 'scene_idx': idx}
+
+        # for k, v in sample.items():
+        #     if isinstance(v, int):
+        #         continue
+        #     print(k, v.shape)
 
         return sample
