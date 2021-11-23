@@ -4,6 +4,7 @@ from torch.utils.data import DataLoader
 from datasets.vizdoom import VizdoomDataset
 from datasets.replica import ReplicaDataset
 from datasets.odokitti import OdokittiDataset
+from datasets.carla import CarlaDataset
 import pytorch_lightning as pl
 
 
@@ -12,6 +13,7 @@ def build_dataloader(data_config, verbose=True):
         'vizdoom': VizdoomDataset,
         'replica_all': ReplicaDataset,
         'odokitti': OdokittiDataset,
+        'carla': CarlaDataset,
     }
 
     if 'train_set_config' not in data_config.keys():

@@ -1,6 +1,7 @@
 import torch
 from torch import nn
 import numpy as np
+from datasets.dataset_utils import batch_compute_inv_homo_matrix
 
 
 def flatten_trajectories(data):
@@ -107,7 +108,9 @@ class TrajectorySampler(nn.Module):
 
         # convert Rt matrices to camera pose matrices, then extract translation component
         # make sure Rts are float, since inverse doesn't work with FP16
-        self.real_trajectories = real_Rts.float().inverse()[:, :, :3, 3].contiguous()
+        inv_real_Rtx = batch_compute_inv_homo_matrix(real_Rts.float())
+        self.real_trajectories = inv_real_Rtx[:, :, :3, 3].contiguous()
+        # self.real_trajectories = real_Rts.float().inverse()[:, :, :3, 3].contiguous()
         # shape [n_trajectories, seq_len, 3]
         self.real_trajectories = nn.Parameter(self.real_trajectories, requires_grad=False)
         self.seq_len = self.real_trajectories.shape[1]
@@ -186,10 +189,12 @@ class TrajectorySampler(nn.Module):
             jitter = jitter * self.jitter_range
             jitter[:, :, 1] = jitter[:, :, 1] * 0  # no jitter on the y axis
 
-            camera_pose = real_Rts.inverse()
+            camera_pose = batch_compute_inv_homo_matrix(real_Rts)
+            # camera_pose = real_Rts.inverse()
             camera_pose[:, :, :3, 3] = camera_pose[:, :, :3, 3] + jitter
             trajectories = camera_pose[:, :, :3, 3]
-            real_Rts = camera_pose.inverse()
+            # real_Rts = camera_pose.inverse()
+            real_Rts = batch_compute_inv_homo_matrix(camera_pose)
         else:
             trajectories = self.real_trajectories
 

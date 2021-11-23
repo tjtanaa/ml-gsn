@@ -42,6 +42,7 @@ class OdometryKittiMlgsnConverter:
 
     def __init__(self, basedir, sequences:list, 
                     frame_step: int=1, 
+                    start_frame: int=0,
                     max_frames:int=None,
                     n_digits_seq_name:int=2,
                     n_digits_img_name:int=3,
@@ -54,6 +55,7 @@ class OdometryKittiMlgsnConverter:
         assert isinstance(max_frames, int) or (max_frames is None)
         self.basedir = basedir
         self.frame_step = frame_step
+        self.start_frame = start_frame
         self.max_frames = max_frames
         self.sequences = sequences
         self.imtype = 'png'
@@ -89,7 +91,7 @@ class OdometryKittiMlgsnConverter:
 
 
 
-    def start_process(self, save_to_dir):
+    def start_process(self, save_to_dir, crop_img_size=None):
         """
             <save_to_dir>
                 - odokitti
@@ -111,6 +113,17 @@ class OdometryKittiMlgsnConverter:
 
         split_keys_list = list(self.splitted_sequences_map.keys())
 
+
+        min_depth = 99999999
+        max_depth = -9999999
+
+        min_x = 99999999
+        min_y = 99999999
+        min_z = 99999999
+        max_x = -99999999
+        max_y = -99999999
+        max_z = -99999999
+
         for split in split_keys_list:
             # generate the directory structure
             save_to_split_path = os.path.join(save_to_dir, split)
@@ -124,10 +137,10 @@ class OdometryKittiMlgsnConverter:
                 # print(len(cam2_files))
                 frames = None
                 if self.max_frames is not None:
-                    frames = frames=range(0, self.max_frames, self.frame_step)
+                    frames = frames=range(self.start_frame, self.start_frame+self.max_frames, self.frame_step)
                 
                 else:
-                    frames = frames=range(0, len(cam2_files), self.frame_step)
+                    frames = frames=range(self.start_frame, len(cam2_files), self.frame_step)
                 print("Split: ", split, "\t sequence: ", sequence, " has ", 
                     str(len(cam2_files)), "frames. Processed only ", len(frames), " frames.")
 
@@ -150,18 +163,67 @@ class OdometryKittiMlgsnConverter:
                 
 
                 P_rect_20 = data.calib.P_rect_20 # intrinsic
+                T2 = np.eye(4)
+                T2[0, 3] = P_rect_20[0, 3] / P_rect_20[0, 0]
+                
+                K_cam2 = P_rect_20[0:3, 0:3]
+
+                if(crop_img_size is not None):
+        
+                    min_u = int(round(K_cam2[0,2] - crop_img_size[1]//2))
+                    max_u = int(round(K_cam2[0,2] + crop_img_size[1]//2))
+                    min_v = int(round(K_cam2[1,2] - crop_img_size[0]//2))
+                    max_v = int(round(K_cam2[1,2] + crop_img_size[0]//2))
+                    K_cam2[0,2] = crop_img_size[1]//2
+                    K_cam2[1,2] = crop_img_size[0]//2
+
+                    # print("K_cam2: ", K_cam2)
 
                 for idx, pose in enumerate(data.poses):
                     # self.K_list.append(P_rect_20)
                     # self.campose_list.append(pose)
+                    # print("pose: ", pose)
+                    # print("P_rect_20: ", P_rect_20)
+                    # print("T2: ", T2)
+                    pose = T2.dot(pose)
+                    # proj_offset = np.eye(4)
+                    # proj_offset[:3,3] = P_rect_20[:3,3]
+                    
+                    # pose = np.dot(proj_offset, pose)
                     inv_pose = compute_inv_homo_matrix(pose)
+                    # print("pose: ", pose)
+                    # exit()
                     # self.Rt_list.append(inv_pose)
+                    # print(P_rect_20.shape)
+                    # print(inv_pose.shape)
+                    # inv_pose[:3,3] += P_rect_20[:3,3]
 
+                    # print("P_rect20: ", P_rect_20)
+                    # print("pose: ", pose)
+                    # pose[:3,3] += P_rect_20[:3,3]
+                    # print("pose: ", pose)
+
+
+                    # exit()
+                    cam2_pose = compute_inv_homo_matrix(deepcopy(inv_pose))
                     self.camera_info_list.append({
-                        "K": P_rect_20.tolist(),
+                        "K": P_rect_20[:3,:3].tolist(),
                         "Rt": inv_pose.tolist(),
                         "CamPose": pose.tolist()
+                        # "Rt": pose.tolist(),
+                        # "CamPose": inv_pose.tolist()
                     })
+                    
+                    point_pose = np.array([0,0,0,1])
+                    pos = pose.dot(point_pose)
+
+                    min_x = min(min_x, pos[0])
+                    min_y = min(min_y, pos[1])
+                    min_z = min(min_z, pos[2])
+                    max_x = max(max_x, pos[0])
+                    max_y = max(max_y, pos[1])
+                    max_z = max(max_z, pos[2])
+
 
                 output_cameras_json_path = os.path.join(save_to_seq_path, 'cameras.json')
                 with open(output_cameras_json_path, 'w') as f:
@@ -172,6 +234,7 @@ class OdometryKittiMlgsnConverter:
 
                 P_rect_20 = data.calib.P_rect_20
                 T_cam0_velo = data.calib.T_cam0_velo
+                T_cam2_velo = data.calib.T_cam2_velo
                 pc_gen = data.velo
                 for idx in range(len(data.poses)):
                     pc0 = next(pc_gen)
@@ -182,7 +245,8 @@ class OdometryKittiMlgsnConverter:
                     rows, cols = img.shape[:2]
                     img_size = [rows, cols]
 
-                    trans_lidar_points = P_rect_20.dot(T_cam0_velo.dot(pc0.T)).T
+                    cam0_velo_points = T_cam0_velo.dot(pc0.T).T
+                    trans_lidar_points = P_rect_20.dot(cam0_velo_points.T).T
 
                     # trans_lidar_points = np.transpose(T_cam2_velo.dot(pc0.transpose()))  # [n, 4]
                     proj_lidar_points = trans_lidar_points / trans_lidar_points[:, 2:3]
@@ -202,20 +266,42 @@ class OdometryKittiMlgsnConverter:
                                                 proj_lidar_points[:, 1] > 0,
                                                 proj_lidar_points[:, 1] < rows])
 
-                    trim_trans_lidar_points = trans_lidar_points[keep_idx,:]
+                    # trim_trans_lidar_points = trans_lidar_points[keep_idx,:]
 
                     trim_proj_lidar_points = proj_lidar_points[keep_idx,:]
 
-                    depth = np.linalg.norm(trim_trans_lidar_points, axis=1)
+
+                    # cam2proj_offset = np.eye(4)
+                    # cam2proj_offset[:3,3] = P_rect_20[:3,3]
+
+                    # print("cam0_velo_points: ", cam0_velo_points.shape)
+                    # print("cam2proj_offset: ", cam2proj_offset)
+                    
+                    # cam2_velo_points = np.dot(cam2proj_offset, cam0_velo_points.T).T
+
+                    cam2_velo_points = T_cam2_velo.dot(pc0.T).T
+                    trim_cam2_velo_points = cam2_velo_points[keep_idx,: ]
+                    # print("P_rect_20: ", P_rect_20)
+                    # print("cam0_velo_points: ", cam0_velo_points)
+                    # print("cam2_velo_points: ", cam2_velo_points)
+                    # exit()
+
+                    depth = np.linalg.norm(trim_cam2_velo_points, axis=1)
                     # normalize_depth = (depth - np.min(depth)) / (np.max(depth)- np.min(depth))
+                    # depth = trim_cam2_velo_points[:, 2]
+
+                    min_depth = min(np.min(depth), min_depth)
+                    max_depth = max(np.max(depth), max_depth)
+
+                    # depth = np.clip(depth, 0.0, 50.0)
 
                     depth_map = np.zeros((rows, cols), dtype=np.float32)
 
                     pixel_index = trim_proj_lidar_points[:,:2].astype(np.int32)
                     depth_map[pixel_index[:,1], pixel_index[:,0]] = depth
 
-                    print(np.min(pixel_index, axis=0))
-                    print(np.max(pixel_index, axis=0))
+                    # print(np.min(pixel_index, axis=0))
+                    # print(np.max(pixel_index, axis=0))
 
                     # normalize_depth_map = (depth_map - np.min(depth_map)) / (np.max(depth_map)- np.min(depth_map))
                     # normalize_depth_map = depth_map
@@ -224,18 +310,43 @@ class OdometryKittiMlgsnConverter:
                     
                     # Using cv2.imwrite() method
                     # Saving the image
-                    cv2.imwrite(depth_map_filename, depth_map)
+                    if(crop_img_size is not None):
+                        # print("min_u: ", min_u, " max_u: ", max_u,
+                        #     " min_v: ", min_v, " max_v: ", max_v
+                        # )
+                        # print("len(u): ", max_u-min_u)
+                        # print("len(v): ", max_v-min_v)
+                        cv2.imwrite(depth_map_filename, depth_map[min_v:max_v, min_u:max_u])
+                    else:
+                        cv2.imwrite(depth_map_filename, depth_map)
 
                     rgb_img_filename = os.path.join(
                         save_to_seq_path, str(idx).zfill(self.n_digits_img_name)  + '_rgb.png')
                     
                     # Using cv2.imwrite() method
                     # Saving the image
-                    cv2.imwrite(rgb_img_filename, img)
+                    if(crop_img_size is not None):
+                        cv2.imwrite(rgb_img_filename, img[min_v:max_v, min_u:max_u,:])
+                    else:
+                        cv2.imwrite(rgb_img_filename, img)
+        print("Min depth: ", min_depth, " \t max_depth: ", max_depth)
+        print("Min depth: ", min_depth, " \t max_depth: ", max_depth)
 
+        print( "min_x ,min_y ,min_z ,max_x ,max_y ,max_z ,",
+                    min_x ,
+                    min_y ,
+                    min_z ,
+                    max_x ,
+                    max_y ,
+                    max_z 
+        )
+sequences = ['00', '01', '02',  '05']
 
-sequences = ['05']
+converter = OdometryKittiMlgsnConverter(BASEDIR, sequences, frame_step=5, start_frame = 0, max_frames=500, train_test_split=[1.0, 0.0])
 
-converter = OdometryKittiMlgsnConverter(BASEDIR, sequences, frame_step=100, train_test_split=[1.0, 0.0])
-
-converter.start_process('/media/data1/kitti/odokitti')
+# converter.start_process('/media/data1/kitti/odokitti')
+# converter.start_process('/media/data1/kitti/odokitti', crop_img_size=[360,360]) #(row, column)
+# converter.start_process('/media/data1/kitti/test_odokitti_crop', crop_img_size=[360,360]) #(row, column)
+# converter.start_process('/media/data1/kitti/odokitti_multi_seq')
+# converter.start_process('/media/data1/kitti/odokitti_multi_seq', crop_img_size=[360,360]) #(row, column)
+converter.start_process('/media/data1/kitti/odokitti_multi_5_seq', crop_img_size=[360,360]) #(row, column)

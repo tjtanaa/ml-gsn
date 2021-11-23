@@ -8,7 +8,44 @@ from torch import nn
 from .layers import *
 from utils.utils import instantiate_from_config
 from .nerf_utils import get_sample_points, volume_render_radiance_field, sample_pdf_2
+# from ..datasets.dataset_utils import batch_compute_inv_homo_matrix
 
+def compute_inv_homo_matrix(matrix):
+
+    R_imu_cam2 = matrix[:3,:3]
+    d_imu_cam2 = matrix[:3,3] #torch.unsqueeze(,axis=1)
+    inv_R_imu_cam2 = torch.inverse(R_imu_cam2)  
+    # print(R_imu_cam2.shape, d_imu_cam2.shape, inv_R_imu_cam2.shape)
+    d_cam2_imu = torch.matmul(-inv_R_imu_cam2, d_imu_cam2)
+
+    T_imu_cam2 = torch.eye(4, dtype=torch.float32).to(matrix.device)
+    T_imu_cam2[:3,:3] = inv_R_imu_cam2
+    T_imu_cam2[:3,3] = d_cam2_imu
+    return T_imu_cam2
+
+
+def batch_compute_inv_homo_matrix(matrix):
+
+    inverse_matrix = torch.zeros_like(matrix, device=matrix.device)
+    if(len(list(inverse_matrix.shape))) == 3:
+        for i in range(inverse_matrix.shape[0]):
+                inverse_matrix[i,:,:] = compute_inv_homo_matrix(matrix[i,:,:])
+
+    elif(len(list(inverse_matrix.shape))) == 4:
+        for i in range(inverse_matrix.shape[0]):
+            for j in range(inverse_matrix.shape[1]):
+                inverse_matrix[i,j,:,:] = compute_inv_homo_matrix(matrix[i,j,:,:])
+    
+    elif(len(list(inverse_matrix.shape))) == 5:
+        for i in range(inverse_matrix.shape[0]):
+            for j in range(inverse_matrix.shape[1]):
+                for k in range(inverse_matrix.shape[2]):
+                    inverse_matrix[i,j,k, :,:] = compute_inv_homo_matrix(matrix[i,j, k, :,:])
+
+    else:
+        raise NotImplementedError("Shape of matrix: ", matrix.shape)
+
+    return inverse_matrix
 
 class StyleGenerator2D(nn.Module):
     def __init__(self, out_res, out_ch, z_dim, ch_mul=1, ch_max=512, skip_conn=True):
@@ -597,7 +634,9 @@ class SceneGenerator(nn.Module):
                 downsampling_ratio = 1
             fx, fy = render_params.K[0, 0, 0] * downsampling_ratio, render_params.K[0, 1, 1] * downsampling_ratio
             xyz, viewdirs, z_vals, rd, ro = get_sample_points(
-                tform_cam2world=render_params.Rt.inverse(),
+                
+                tform_cam2world=batch_compute_inv_homo_matrix(render_params.Rt),
+                # tform_cam2world=render_params.Rt.inverse(),
                 F=(fx, fy),
                 H=H,
                 W=W,

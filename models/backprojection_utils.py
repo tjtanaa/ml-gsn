@@ -1,5 +1,44 @@
 import torch
 from .nerf_utils import get_ray_bundle_batch
+# from ..datasets.dataset_utils import batch_compute_inv_homo_matrix
+
+
+def compute_inv_homo_matrix(matrix):
+
+    R_imu_cam2 = matrix[:3,:3]
+    d_imu_cam2 = matrix[:3,3] #torch.unsqueeze(,axis=1)
+    inv_R_imu_cam2 = torch.inverse(R_imu_cam2)  
+    # print(R_imu_cam2.shape, d_imu_cam2.shape, inv_R_imu_cam2.shape)
+    d_cam2_imu = torch.matmul(-inv_R_imu_cam2, d_imu_cam2)
+
+    T_imu_cam2 = torch.eye(4, dtype=torch.float32).to(matrix.device)
+    T_imu_cam2[:3,:3] = inv_R_imu_cam2
+    T_imu_cam2[:3,3] = d_cam2_imu
+    return T_imu_cam2
+
+
+def batch_compute_inv_homo_matrix(matrix):
+
+    inverse_matrix = torch.zeros_like(matrix, device=matrix.device)
+    if(len(list(inverse_matrix.shape))) == 3:
+        for i in range(inverse_matrix.shape[0]):
+                inverse_matrix[i,:,:] = compute_inv_homo_matrix(matrix[i,:,:])
+
+    elif(len(list(inverse_matrix.shape))) == 4:
+        for i in range(inverse_matrix.shape[0]):
+            for j in range(inverse_matrix.shape[1]):
+                inverse_matrix[i,j,:,:] = compute_inv_homo_matrix(matrix[i,j,:,:])
+    
+    elif(len(list(inverse_matrix.shape))) == 5:
+        for i in range(inverse_matrix.shape[0]):
+            for j in range(inverse_matrix.shape[1]):
+                for k in range(inverse_matrix.shape[2]):
+                    inverse_matrix[i,j,k, :,:] = compute_inv_homo_matrix(matrix[i,j, k, :,:])
+
+    else:
+        raise NotImplementedError("Shape of matrix: ", matrix.shape)
+
+    return inverse_matrix
 
 
 def backproject(voxel_dim, voxel_size, world_center, Rt, K, features, depth=None, resize=True, return_pointcloud=False):
@@ -26,7 +65,8 @@ def backproject(voxel_dim, voxel_size, world_center, Rt, K, features, depth=None
         volume (torch.Tensor): volume containing backprojected features. Of shape [nx, ny, nz, C].
 
     """
-    tform_cam2world = Rt.inverse()
+    tform_cam2world = batch_compute_inv_homo_matrix(Rt)
+    # tform_cam2world = Rt.inverse()
     fx, fy = K[0, 0, 0], K[0, 1, 1]  # grab the first value and assume all others are similar
 
     if resize:
