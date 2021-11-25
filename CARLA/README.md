@@ -20,7 +20,7 @@ Install conda environment:
 4.	`bash scripts/launch_gsn_vizdoom_64x64.sh`
 
 ## Testing Pretrained Model (Qualitative Evaluation)
-1.  Download the [_`log_dir`_](https://hkustconnect-my.sharepoint.com/:f:/g/personal/khleeba_connect_ust_hk/Epis1dORm-NCuZk6edqmgpwBcjIzDVJWGYWxV7itn_PVlw?e=zcvCV2) to the root of project. 
+1.  Download the [_`log_dir`_](https://hkustconnect-my.sharepoint.com/:f:/g/personal/khleeba_connect_ust_hk/Epis1dORm-NCuZk6edqmgpwBcjIzDVJWGYWxV7itn_PVlw?e=zcvCV2) to the root of project (e.g. `CARLA/CARLA_singleView`). 
 2.	Put the corresponding preprocessed dataset downloaded from the drive to the `data/` folder.
 3.	Start Jupyter server. 
 4.	Open `notebooks/walkthrough_demo.ipynb`.
