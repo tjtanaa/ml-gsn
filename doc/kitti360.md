@@ -2,7 +2,7 @@
 
 ## Links to original dataset.
 - [KITTI-360 Dataset](http://www.cvlibs.net/datasets/kitti-360/)
-- [Preprocessing tools and Processed Kitti-360 Dataset](https://www.google.com/url?q=https://hkustconnect-my.sharepoint.com/:f:/g/personal/tjtanaa_connect_ust_hk/EibnTLeCAwBMgo43MetMVyIBPsgy8xgJXbdeoUu-bTo3lQ?e%3DFiPzpX&sa=D&source=hangouts&ust=1637215212155000&usg=AOvVaw1zWs9QraJuDku5CSdBVHcn)
+- [Preprocessing tools and Processed Kitti-360 Dataset](https://hkustconnect-my.sharepoint.com/:f:/g/personal/hpaat_connect_ust_hk/Eor7lz08LsdOr-lvweXiJZMBEV6wYf1ZlBmuJX7J0XrmdA?e=rBFpRe)
 
 
 ## Preprocessing new sequences from raw dataset.
