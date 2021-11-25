@@ -90,13 +90,15 @@ ml-gsn
 2. Run `bash scripts/launch_gsn_odokitti_64x64.sh`.
 
 
-## Testing Pretrained Model
-1.	Put the corresponding preprocessed dataset downloaded from the drive to the `data/` folder.
-2.	Start Jupyter server. 
-3.	Open `notebooks/walkthrough_demo_odokitti.ipynb`.
-4.	Change the absolute path inside to your corresponding absolute path. (`checkpoint_filename` and `data_path`)
-5.	Run it.
+## Testing Pretrained Model (Qualitative Evaluation)
+1.  Download the [_`log_dir`_](https://hkustconnect-my.sharepoint.com/:f:/g/personal/tjtanaa_connect_ust_hk/EifqSVB0diNDlVcqTCE9DUwBTlYaqD3gysk7AcGzn9-GhQ?e=DO6Sr1) to the root of project. 
+2.	Put the corresponding preprocessed dataset downloaded from the drive to the `data/` folder.
+3.	Start Jupyter server. 
+4.	Open `notebooks/walkthrough_demo_odokitti.ipynb`.
+5.	Change the absolute path inside to your corresponding absolute path. (`checkpoint_filename` and `data_path`)
+![jupyternotebook](../assets/walkthrough_notebook.png)
+6.	Run it.
 
 ## Model Training and Testing Information:
 1.	Stored in logs.
-2.	`logs/vis` give the visualization of the model training details.
+2.	`test_logs_<log_postfix>` give the visualization of the model training details.

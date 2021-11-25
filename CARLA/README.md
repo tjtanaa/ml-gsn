@@ -5,7 +5,7 @@ This folder contains 4 repository for training of 4 synthetic datasets:
 3.	KITTICARLA_singleView is a model trained on self-generated single camera KITTI-CARLA dataset.
 4.	KITTICARLA_singleView is a model trained on self-generated DUAL camera KITTI-CARLA dataset.
 
-The dataset can be downloaded from https://hkustconnect-my.sharepoint.com/:u:/g/personal/khleeba_connect_ust_hk/EVHZ_qshvBdChx4h1TFaC0gBwv1Ab6antkk-jBRMUNpAyg?e=15t1X7 
+The dataset can be downloaded from https://hkustconnect-my.sharepoint.com/:f:/g/personal/khleeba_connect_ust_hk/Epis1dORm-NCuZk6edqmgpwBcjIzDVJWGYWxV7itn_PVlw?e=zcvCV2
 
 ## Environment Setup
 Install conda environment:
@@ -19,8 +19,15 @@ Install conda environment:
 3.	Put the corresponding preprocessed dataset downloaded from the drive to the `data/` folder.
 4.	`bash scripts/launch_gsn_vizdoom_64x64.sh`
 
+## Testing Pretrained Model (Qualitative Evaluation)
+1.  Download the [_`log_dir`_](https://hkustconnect-my.sharepoint.com/:f:/g/personal/khleeba_connect_ust_hk/Epis1dORm-NCuZk6edqmgpwBcjIzDVJWGYWxV7itn_PVlw?e=zcvCV2) to the root of project. 
+2.	Put the corresponding preprocessed dataset downloaded from the drive to the `data/` folder.
+3.	Start Jupyter server. 
+4.	Open `notebooks/walkthrough_demo.ipynb`.
+5.	Change the absolute path inside to your corresponding absolute path
+6.	Run it.
 
-## Testing:
+## Testing (Qualitative Evaluation):
 1.	Put the corresponding preprocessed dataset downloaded from the drive to the `data/` folder.
 2.	Start Jupyter server. 
 3.	Open `notebooks/walkthrough_demo.ipynb`.

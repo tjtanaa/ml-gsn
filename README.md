@@ -23,12 +23,23 @@ Custom CUDA kernels may not work with older versions of CUDA. This code will rev
 ## Outdoor Datasets
 We have trained the model on 4 different datasets. Namely,
 1. [KITTI-360 Dataset](http://www.cvlibs.net/datasets/kitti-360/)
-2. [KITTI Odometry](http://www.cvlibs.net/datasets/kitti/eval_odometry.php)
-3. [KITTI-Carla](https://npm3d.fr/kitti-carla)
-4. [Carla](https://carla.org/)
+2. [KITTI Odometry Dataset](http://www.cvlibs.net/datasets/kitti/eval_odometry.php)
+3. [KITTI-Carla Dataset](https://npm3d.fr/kitti-carla)
+4. [Carla Dataset](https://carla.org/)
 
 The dataset has been preprocessed by us and the way to setup the dataset please refer to the links below.
 1. [KITTI-360 Dataset](doc/kitti360.md)
-2. [KITTI Odometry](doc/kitti_odometry.md)
-3. [KITTI-Carla](doc/kitti_carla.md)
-4. [Carla](doc/carla.md)
+2. [KITTI Odometry Dataset](doc/kitti_odometry.md)
+3. [KITTI-Carla Dataset](doc/kitti_carla.md)
+4. [Carla Dataset](doc/carla.md)
+
+
+## Getting Started
+Please refer to the following links to learn how to setup the repository and model for each dataset.
+Similar to the original repository. We have provided OneDrive links to the preprocessed data for
+training and also a single `log` directory as pretrained model for qualitative evaluation which is
+done through `notebooks/walkthrough_demo.ipynb`/`notebooks/walkthrough_demo_odokitti.ipynb`
+1. [KITTI-360 Dataset](doc/kitti360.md)
+2. [KITTI Odometry Dataset](doc/kitti_odometry.md)
+3. [KITTI-Carla Dataset](doc/kitti_carla.md)
+4. [Carla Dataset](doc/carla.md)

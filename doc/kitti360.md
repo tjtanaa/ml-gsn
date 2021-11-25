@@ -81,3 +81,16 @@ ml-gsn
 ## Training Model
 1. Edit the GPUs devices, config files, log_path in `scripts/launch_gsn_kitti360_64x64.sh`.
 2. Run `bash scripts/launch_gsn_kitti360_64x64.sh`.
+
+## Testing Pretrained Model (Qualitative Evaluation)
+1.  Download the [_`log_dir`_](https://hkustconnect-my.sharepoint.com/:f:/g/personal/hpaat_connect_ust_hk/Eor7lz08LsdOr-lvweXiJZMBEV6wYf1ZlBmuJX7J0XrmdA?e=rBFpRe) to the root of project. 
+1.	Put the corresponding preprocessed dataset downloaded from the drive to the `data/` folder.
+2.	Start Jupyter server. 
+3.	Open `notebooks/walkthrough_demo.ipynb`.
+4.	Change the absolute path inside to your corresponding absolute path. (`checkpoint_filename` and `data_path`)
+![jupyternotebook](../assets/walkthrough_notebook.png)
+5.	Run it.
+
+## Model Training and Testing Information:
+1.	Stored in logs.
+2.	`test_logs_<log_postfix>` give the visualization of the model training details.
