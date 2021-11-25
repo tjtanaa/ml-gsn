@@ -65,8 +65,8 @@ def backproject(voxel_dim, voxel_size, world_center, Rt, K, features, depth=None
         volume (torch.Tensor): volume containing backprojected features. Of shape [nx, ny, nz, C].
 
     """
-    tform_cam2world = batch_compute_inv_homo_matrix(Rt)
-    # tform_cam2world = Rt.inverse()
+    # tform_cam2world = batch_compute_inv_homo_matrix(Rt)
+    tform_cam2world = Rt.inverse()
     fx, fy = K[0, 0, 0], K[0, 1, 1]  # grab the first value and assume all others are similar
 
     if resize:

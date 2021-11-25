@@ -172,12 +172,13 @@ class OdokittiDataset(Dataset):
         K[:, 0, 0] = K[:, 0, 0] * fx
         K[:, 1, 1] = K[:, 1, 1] * fy
 
-        downsampling_ratio = self.img_res / 512
+        # downsampling_ratio = self.img_res / 512
+        downsampling_ratio = self.img_res / 480
         # print("downsampling: ", downsampling_ratio)
         K[:, 0, 0] = K[:, 0, 0] * downsampling_ratio
         K[:, 1, 1] = K[:, 1, 1] * downsampling_ratio
-        # depth = depth * 1000  # recommended scaling from game engine units to real world units
-
+        # depth = depth /2 * 100  # recommended scaling from game engine units to real world units
+        depth = depth * 10 
         if self.depth:
             sample = {'rgb': rgb, 'depth': depth, 'K': K, 'Rt': Rt, 'scene_idx': idx}
         else:

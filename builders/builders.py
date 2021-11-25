@@ -5,6 +5,7 @@ from datasets.vizdoom import VizdoomDataset
 from datasets.replica import ReplicaDataset
 from datasets.odokitti import OdokittiDataset
 from datasets.carla import CarlaDataset
+from datasets.odokitti_Kcorrected import OdokittiKCorrectedDataset
 import pytorch_lightning as pl
 
 
@@ -13,6 +14,7 @@ def build_dataloader(data_config, verbose=True):
         'vizdoom': VizdoomDataset,
         'replica_all': ReplicaDataset,
         'odokitti': OdokittiDataset,
+        'odokittiKCorrected': OdokittiKCorrectedDataset,
         'carla': CarlaDataset,
     }
 

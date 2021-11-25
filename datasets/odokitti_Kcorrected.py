@@ -12,7 +12,7 @@ import torchvision.transforms as transforms
 from .dataset_utils import listdir_nohidden, normalize_trajectory, random_rotation_augment
 
 
-class CarlaDataset(Dataset):
+class OdokittiKCorrectedDataset(Dataset):
     def __init__(
         self,
         data_dir,
@@ -29,7 +29,7 @@ class CarlaDataset(Dataset):
         **kwargs
     ):
 
-        self.episode_len = 100
+        self.episode_len = 300
         self.data_dir = data_dir
         self.split = split
         self.datapath = os.path.join(self.data_dir, self.split)
@@ -44,6 +44,7 @@ class CarlaDataset(Dataset):
         self.samples_per_epoch = samples_per_epoch
 
         # step*seq_len < total_seq_len
+        # print("step: ", step, " \t episode/step: ", self.episode_len / seq_len)
         step = min(step, self.episode_len / seq_len)
         self.step = step
         self.resize_transform_rgb = transforms.Compose([transforms.Resize((self.img_res, self.img_res)), transforms.ToTensor()])
@@ -69,6 +70,8 @@ class CarlaDataset(Dataset):
 
         # this basically samples points at the stride length
         Rt = Rt.view(-1, self.seq_len, self.step, 4, 4).permute(0, 2, 1, 3, 4).reshape(-1, self.seq_len, 4, 4)
+
+        # print("Rt.shape: ", Rt.shape)
 
         if self.center is not None:
             Rt = normalize_trajectory(Rt, center=self.center, normalize_rotation=self.normalize_rotation)
@@ -174,8 +177,7 @@ class CarlaDataset(Dataset):
         # print("downsampling: ", downsampling_ratio)
         K[:, 0, 0] = K[:, 0, 0] * downsampling_ratio
         K[:, 1, 1] = K[:, 1, 1] * downsampling_ratio
-        # depth = depth * 1000.0 / 255.0  # recommended scaling from game engine units to real world units
-        depth = depth / 32 * 100  # recommended scaling from game engine units to real world units
+        depth = depth * 10  # recommended scaling from game engine units to real world units
 
         if self.depth:
             sample = {'rgb': rgb, 'depth': depth, 'K': K, 'Rt': Rt, 'scene_idx': idx}

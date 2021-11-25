@@ -61,20 +61,20 @@ def normalize_trajectory(Rt, center='first', normalize_rotation=True):
         return Rt
 
     if normalize_rotation:
-        # origins = Rt[:, origin_frame : origin_frame + 1].expand_as(Rt).reshape(-1, 4, 4).inverse()
-        origins = Rt[:, origin_frame : origin_frame + 1].expand_as(Rt).reshape(-1, 4, 4)
-        origins = batch_compute_inv_homo_matrix(origins)
+        origins = Rt[:, origin_frame : origin_frame + 1].expand_as(Rt).reshape(-1, 4, 4).inverse()
+        # origins = Rt[:, origin_frame : origin_frame + 1].expand_as(Rt).reshape(-1, 4, 4)
+        # origins = batch_compute_inv_homo_matrix(origins)
         normalized_Rt = torch.bmm(Rt.view(-1, 4, 4), origins)
         normalized_Rt = normalized_Rt.view(-1, seq_len, 4, 4)
     else:
-        camera_pose = batch_compute_inv_homo_matrix(Rt)
+        # camera_pose = batch_compute_inv_homo_matrix(Rt)
 
-        # camera_pose = Rt. inverse()
+        camera_pose = Rt. inverse()
         origins = camera_pose[:, origin_frame : origin_frame + 1, :3, 3]
         camera_pose[:, :, :3, 3] = camera_pose[:, :, :3, 3] - origins
-        # normalized_Rt = camera_pose.inverse()
+        normalized_Rt = camera_pose.inverse()
 
-        normalized_Rt = batch_compute_inv_homo_matrix(camera_pose)
+        # normalized_Rt = batch_compute_inv_homo_matrix(camera_pose)
 
 
 

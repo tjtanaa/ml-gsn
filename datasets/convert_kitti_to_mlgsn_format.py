@@ -207,7 +207,7 @@ class OdometryKittiMlgsnConverter:
                     # exit()
                     cam2_pose = compute_inv_homo_matrix(deepcopy(inv_pose))
                     self.camera_info_list.append({
-                        "K": P_rect_20[:3,:3].tolist(),
+                        "K": K_cam2.tolist(),
                         "Rt": inv_pose.tolist(),
                         "CamPose": pose.tolist()
                         # "Rt": pose.tolist(),
@@ -240,7 +240,7 @@ class OdometryKittiMlgsnConverter:
                     pc0 = next(pc_gen)
 
                     pc0[:, -1] = np.ones(pc0.shape[0])
-                    img = data.get_rgb(0)[0]
+                    img = data.get_rgb(idx)[0]
                     img = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
                     rows, cols = img.shape[:2]
                     img_size = [rows, cols]
@@ -340,13 +340,14 @@ class OdometryKittiMlgsnConverter:
                     max_y ,
                     max_z 
         )
-sequences = ['00', '01', '02',  '05']
+# sequences = ['00', '01', '02',  '05']
+sequences = ['05']
 
-converter = OdometryKittiMlgsnConverter(BASEDIR, sequences, frame_step=5, start_frame = 0, max_frames=500, train_test_split=[1.0, 0.0])
+converter = OdometryKittiMlgsnConverter(BASEDIR, sequences, frame_step=1, start_frame = 0, max_frames=500, train_test_split=[1.0, 0.0])
 
 # converter.start_process('/media/data1/kitti/odokitti')
-# converter.start_process('/media/data1/kitti/odokitti', crop_img_size=[360,360]) #(row, column)
+converter.start_process('/media/data1/kitti/odokitti', crop_img_size=[360,360]) #(row, column)
 # converter.start_process('/media/data1/kitti/test_odokitti_crop', crop_img_size=[360,360]) #(row, column)
 # converter.start_process('/media/data1/kitti/odokitti_multi_seq')
 # converter.start_process('/media/data1/kitti/odokitti_multi_seq', crop_img_size=[360,360]) #(row, column)
-converter.start_process('/media/data1/kitti/odokitti_multi_5_seq', crop_img_size=[360,360]) #(row, column)
+# converter.start_process('/media/data1/kitti/odokitti_multi_5_seq', crop_img_size=[360,360]) #(row, column)

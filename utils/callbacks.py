@@ -161,8 +161,8 @@ def sample_floorplans(viz_dir, filename, voxel_res, voxel_size, data, floorplan_
 def sample_trajectories(viz_dir, filename, voxel_res, voxel_size, Rts):
     filepath = os.path.join(viz_dir, filename)
 
-    xyz = batch_compute_inv_homo_matrix(Rts)[:, :, 0:3, 3].cpu().numpy()
-    # xyz = Rts.inverse()[:, :, 0:3, 3].cpu().numpy()
+    # xyz = batch_compute_inv_homo_matrix(Rts)[:, :, 0:3, 3].cpu().numpy()
+    xyz = Rts.inverse()[:, :, 0:3, 3].cpu().numpy()
     for i in range(len(xyz)):
         plt.plot(xyz[i, :, 0], xyz[i, :, 2], c='blue', alpha=0.1, linewidth=3)
         plt.scatter(xyz[i, :, 0], xyz[i, :, 2], c='blue', alpha=0.1, linewidth=3)

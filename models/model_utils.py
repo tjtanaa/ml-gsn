@@ -108,9 +108,9 @@ class TrajectorySampler(nn.Module):
 
         # convert Rt matrices to camera pose matrices, then extract translation component
         # make sure Rts are float, since inverse doesn't work with FP16
-        inv_real_Rtx = batch_compute_inv_homo_matrix(real_Rts.float())
-        self.real_trajectories = inv_real_Rtx[:, :, :3, 3].contiguous()
-        # self.real_trajectories = real_Rts.float().inverse()[:, :, :3, 3].contiguous()
+        # inv_real_Rtx = batch_compute_inv_homo_matrix(real_Rts.float())
+        # self.real_trajectories = inv_real_Rtx[:, :, :3, 3].contiguous()
+        self.real_trajectories = real_Rts.float().inverse()[:, :, :3, 3].contiguous()
         # shape [n_trajectories, seq_len, 3]
         self.real_trajectories = nn.Parameter(self.real_trajectories, requires_grad=False)
         self.seq_len = self.real_trajectories.shape[1]
