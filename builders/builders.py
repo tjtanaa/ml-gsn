@@ -16,6 +16,7 @@ def build_dataloader(data_config, verbose=True):
         'odokitti': OdokittiDataset,
         'odokittiKCorrected': OdokittiKCorrectedDataset,
         'carla': CarlaDataset,
+        'kitti360': Kitti360Dataset,
     }
 
     if 'train_set_config' not in data_config.keys():
