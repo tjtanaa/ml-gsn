@@ -1,4 +1,4 @@
-# Exploring Generative Scene Networks (GSN) with Outdoor Scenes
+# 3D Scene Reconstruction with Neural Radiance Fields: Exploring Generative Scene Networks (GSN) with Outdoor Scenes
 **Extended from Unconstrained Scene Generation with Locally Conditioned Radiance Fields (ICCV 2021)**<br>
 
 ### [Project Page](https://github.com/tjtanaa/ml-gsn.git) | [Outdoor Data](#outdoor-datasets) | [Project Page](https://apple.github.io/ml-gsn/) | [Original Project Page](https://apple.github.io/ml-gsn/)
