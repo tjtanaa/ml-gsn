@@ -2,7 +2,7 @@
 
 ## Links to original dataset.
 - [KITTI Odometry Dataset](http://www.cvlibs.net/datasets/kitti/eval_odometry.php)
-- [Processed Kitti Dataset](https://www.google.com/url?q=https://hkustconnect-my.sharepoint.com/:f:/g/personal/tjtanaa_connect_ust_hk/EibnTLeCAwBMgo43MetMVyIBPsgy8xgJXbdeoUu-bTo3lQ?e%3DFiPzpX&sa=D&source=hangouts&ust=1637215212155000&usg=AOvVaw1zWs9QraJuDku5CSdBVHcn)
+- [Processed Kitti Dataset](https://hkustconnect-my.sharepoint.com/:f:/g/personal/tjtanaa_connect_ust_hk/EifqSVB0diNDlVcqTCE9DUwBTlYaqD3gysk7AcGzn9-GhQ?e=DO6Sr1)
 
 
 ## Preprocessing new sequences from raw dataset.
@@ -88,3 +88,15 @@ ml-gsn
 ## Training Model
 1. Edit the GPUs devices, config files, log_path in `scripts/launch_gsn_odokitti_64x64.sh`.
 2. Run `bash scripts/launch_gsn_odokitti_64x64.sh`.
+
+
+## Testing Pretrained Model
+1.	Put the corresponding preprocessed dataset downloaded from the drive to the `data/` folder.
+2.	Start Jupyter server. 
+3.	Open `notebooks/walkthrough_demo_odokitti.ipynb`.
+4.	Change the absolute path inside to your corresponding absolute path. (`checkpoint_filename` and `data_path`)
+5.	Run it.
+
+## Model Training and Testing Information:
+1.	Stored in logs.
+2.	`logs/vis` give the visualization of the model training details.
