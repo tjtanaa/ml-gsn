@@ -6,6 +6,7 @@ from datasets.replica import ReplicaDataset
 from datasets.odokitti import OdokittiDataset
 from datasets.carla import CarlaDataset
 from datasets.odokitti_Kcorrected import OdokittiKCorrectedDataset
+from datasets.kitti360 import Kitti360Dataset
 import pytorch_lightning as pl
 
 
