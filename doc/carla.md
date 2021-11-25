@@ -20,4 +20,4 @@
           Here -s is the seed. --res is resolution.
 
 # Training and Testing
-Please refer to `CARLA/README.md`.
+Please refer to [`CARLA/README.md`](../CARLA/README.md).

@@ -21,3 +21,14 @@ Custom CUDA kernels may not work with older versions of CUDA. This code will rev
 
 
 ## Outdoor Datasets
+We have trained the model on 4 different datasets. Namely,
+1. [KITTI-360 Dataset](http://www.cvlibs.net/datasets/kitti-360/)
+2. [KITTI Odometry](http://www.cvlibs.net/datasets/kitti/eval_odometry.php)
+3. [KITTI-Carla](https://npm3d.fr/kitti-carla)
+4. [Carla](https://carla.org/)
+
+The dataset has been preprocessed by us and the way to setup the dataset please refer to the links below.
+1. [KITTI-360 Dataset](doc/kitti360.md)
+2. [KITTI Odometry](doc/kitti_odometry.md)
+3. [KITTI-Carla](doc/kitti_carla.md)
+4. [Carla](doc/carla.md)
